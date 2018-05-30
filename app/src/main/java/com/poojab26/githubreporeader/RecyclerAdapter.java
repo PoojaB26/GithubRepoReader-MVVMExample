@@ -62,6 +62,7 @@ import java.util.List;
 
         public ViewHolder(View view) {
             super(view);
+            
 
             tvName = (TextView)view.findViewById(R.id.textView_name);
             tvId = (TextView)view.findViewById(R.id.textView_id);
