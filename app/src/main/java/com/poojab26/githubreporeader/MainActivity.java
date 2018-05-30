@@ -11,10 +11,17 @@ import com.google.gson.GsonBuilder;
 
 import java.util.List;
 
+import io.reactivex.Observable;
+import io.reactivex.Observer;
+import io.reactivex.Scheduler;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity {
@@ -51,14 +58,41 @@ public class MainActivity extends AppCompatActivity {
                 .create();
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(GithubService.ENDPOINT)
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
         GithubService githubClient = retrofit.create(GithubService.class);
 
         // Fetch a list of the Github repositories.
-        Call<List<Repo>> call = githubClient.reposForUser("square");
+        Observable<List<Repo>> reposReturnedObservable = githubClient.reposForUser("square");
 
-        // Execute the call asynchronously.
+        reposReturnedObservable.subscribeOn(Schedulers.newThread()).
+                observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<List<Repo>>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(List<Repo> repos) {
+                        data = repos;
+                        adapter = new RecyclerAdapter(data);
+                        recyclerView.setAdapter(adapter);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+
+     /*   // Execute the call asynchronously.
         call.enqueue(new Callback<List<Repo>>() {
             @Override
             public void onResponse(Call<List<Repo>> call,
@@ -74,6 +108,6 @@ public class MainActivity extends AppCompatActivity {
                 // the network call was a failure
                 Log.d(TAG, "Error Occurred");
             }
-        });
+        });*/
     }
 }
