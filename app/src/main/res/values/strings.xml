@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">GithubRepoReader</string>
+    <string name="err_msg_emptybox">Empty box</string>
+    <string name="err_msg_username">Contains spces underscors</string>
 </resources>
